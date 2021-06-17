@@ -1,3 +1,6 @@
+using System;
+using System.Diagnostics;
+
 namespace Tennis
 {
     class TennisGame : ITennisGame
@@ -24,58 +27,166 @@ namespace Tennis
         public string GetScore()
         {
             string score = "";
-            var tempScore = 0;
-            if (m_score1 == m_score2)
+            //Simplifying Code so each part returns the most reduced code minimizing errors also added try catches
+            try
+            {
+                if (m_score1 == m_score2)
+                {
+                    //Game is Tied Return Tied Text
+                    score = TiedGame();
+                }
+                else if (m_score1 >= 4 || m_score2 >= 4)
+                {
+                    //Game is Advantage to a player return Advantage Text
+                    score = GameAdvantage();
+                }
+                else
+                {
+                    //Score is neither tied nor are we at advantage
+                    score = MidGameScoreText();
+                }
+            }
+            catch (Exception ex)
+            {
+                //Some minor error handling
+                Trace.WriteLine("An Error Occurred: " + ex.Message);
+               
+            }       
+            return score;
+        }
+        public string MidGameScoreText()
+        {
+            string midGameScoreText = "";
+            try
+            {
+              
+                var tempScore = 0;
+                for (var i = 1; i < 3; i++)
+                {
+                    if (i == 1)
+                    { tempScore = m_score1; }
+                    else
+                    { midGameScoreText += "-"; tempScore = m_score2; }
+                    switch (tempScore)
+                    {
+                        case 0:
+                            midGameScoreText += "Love";
+                            break;
+                        case 1:
+                            midGameScoreText += "Fifteen";
+                            break;
+                        case 2:
+                            midGameScoreText += "Thirty";
+                            break;
+                        case 3:
+                            midGameScoreText += "Forty";
+                            break;
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                //Error Handling
+                Trace.WriteLine("An Error Occurred:" + ex.Message);
+               
+            }
+          
+            return midGameScoreText;
+        
+        }
+        public string TiedGame()
+        {
+            string gameTied = "";
+            try
             {
                 switch (m_score1)
                 {
                     case 0:
-                        score = "Love-All";
+                        gameTied = "Love-All";
                         break;
                     case 1:
-                        score = "Fifteen-All";
+                        gameTied = "Fifteen-All";
                         break;
                     case 2:
-                        score = "Thirty-All";
+                        gameTied = "Thirty-All";
                         break;
                     default:
-                        score = "Deuce";
+                        gameTied = "Deuce";
                         break;
-
                 }
             }
-            else if (m_score1 >= 4 || m_score2 >= 4)
+            catch (Exception ex)
             {
-                var minusResult = m_score1 - m_score2;
-                if (minusResult == 1) score = "Advantage player1";
-                else if (minusResult == -1) score = "Advantage player2";
-                else if (minusResult >= 2) score = "Win for player1";
-                else score = "Win for player2";
+
+                Trace.WriteLine("An Error Occurred" + ex.Message);
             }
-            else
+           
+            return gameTied;
+        }
+        public string ShutoutGame()
+        {
+            //Someone had a bad game
+
+            string shutoutText = "";
+
+            try
             {
-                for (var i = 1; i < 3; i++)
+                if (m_score1 > 2)
                 {
-                    if (i == 1) tempScore = m_score1;
-                    else { score += "-"; tempScore = m_score2; }
-                    switch (tempScore)
+                    shutoutText = "Win for player1";
+                }
+                else
+                { shutoutText = "Win for player2"; }
+            }
+            catch (Exception ex)
+            {
+
+                Trace.WriteLine("An error occurred" + ex.Message);
+              
+            }
+           
+            return shutoutText;
+        }
+        public string GameAdvantage()
+        {         
+            string advantageText = "";
+            try
+            {
+                //Didn't really need to change name just thought the readability improved over minusResult
+                var advantageDifference = m_score1 - m_score2;
+
+                if (advantageDifference > 2 || advantageDifference < -2)
+                {
+                    //Game will be ending
+                    advantageText = ShutoutGame();
+                }
+                else
+                {
+                    switch (advantageDifference)
                     {
-                        case 0:
-                            score += "Love";
-                            break;
                         case 1:
-                            score += "Fifteen";
+                            advantageText = "Advantage player1";
+                            break;
+                        case -1:
+                            advantageText = "Advantage player2";
                             break;
                         case 2:
-                            score += "Thirty";
+                            advantageText = "Win for player1";
                             break;
-                        case 3:
-                            score += "Forty";
+                        default:
+                            advantageText = "Win for player2";
                             break;
                     }
                 }
             }
-            return score;
+            catch (Exception ex)
+            {
+                //Error Handling
+                Trace.WriteLine("An Error Occurred:" + ex.Message);
+            }
+          
+            return advantageText;
         }
     }
 }
